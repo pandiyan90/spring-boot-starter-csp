@@ -1,0 +1,77 @@
+plugins {
+	id 'java'
+	id 'io.spring.dependency-management' version '1.1.7'
+    id 'maven-publish'
+}
+
+group = 'com.example'
+version = '1.0.0'
+description = 'Spring Boot for CSP'
+
+java {
+	toolchain {
+		languageVersion = JavaLanguageVersion.of(21)
+	}
+}
+
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+}
+
+repositories {
+	mavenCentral()
+}
+
+dependencyManagement {
+    imports {
+        mavenBom 'org.springframework.boot:spring-boot-dependencies:3.5.5'
+    }
+}
+
+dependencies {
+	implementation 'org.springframework.boot:spring-boot-starter-web'
+	compileOnly 'org.springframework.boot:spring-boot-configuration-processor'
+	annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+}
+
+publishing {
+	publications {
+		maven(MavenPublication) {
+			from components.java
+			
+            versionMapping {
+                usage('java-api') {
+                    fromResolutionOf('runtimeClasspath')
+                }
+                usage('java-runtime') {
+                    fromResolutionResult()
+                }
+            }
+            
+			pom {
+				name = 'Spring Boot Starter CSP'
+				description = 'Custom starter for Content Security Policy handling'
+				
+				licenses {
+					license {
+						name = 'The Apache License, Version 2.0'
+						url = 'https://www.apache.org/licenses/LICENSE-2.0.txt'
+					}
+				}
+			}
+		}
+	}
+}
+
+jar {
+	archiveClassifier = ''
+	enabled = true
+}
+
+tasks.named('test') {
+	useJUnitPlatform()
+}
